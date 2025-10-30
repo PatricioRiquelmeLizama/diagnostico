@@ -76,7 +76,7 @@
         }
 
         $stmt->bind_param(
-            "ssiiiiiiiiis",
+            "ssiiisiiiiis",
             $data['codigo'],     
             $data['nombre'],      
             $data['idBodega'],    

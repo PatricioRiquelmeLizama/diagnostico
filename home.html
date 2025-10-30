@@ -47,7 +47,7 @@
                 </div>
                 <div class="form-group">
                     <label for="precio">Precio</label>
-                    <input type="number" id="precio" name="precio" value="" placeholder="1500">
+                    <input id="precio" type="text" name="precio" value="" placeholder="1500">
                 </div>
             </div>
 
@@ -144,6 +144,12 @@
                 materialesBinarios.push(chk.checked ? 1 : 0);
             });
 
+            const cantidadSeleccionados = materialesBinarios.filter(val => val === 1).length;
+            if (cantidadSeleccionados < 2) {
+                alert("Debe seleccionar al menos dos materiales para el producto.");
+                return false;
+            }
+
             if (codigo === "") {
                 alert("El código del producto no puede estar en blanco.");
                 return false;
@@ -152,6 +158,12 @@
             const min = 5, max = 15;
             if (codigo.length < min || codigo.length > max) {
                 alert(`El código debe tener entre ${min} y ${max} caracteres.`);
+                return;
+            }
+
+            const mindes = 10, maxdes = 1000;
+            if (descripcion.length < mindes || descripcion.length > maxdes) {
+                alert(`La descripcion debe tener entre ${mindes} y ${maxdes} caracteres.`);
                 return;
             }
 
@@ -165,6 +177,19 @@
             const tieneNumero = /[0-9]/.test(codigo);
             if (!tieneLetra || !tieneNumero) {
                 alert("El código debe contener al menos una letra y un número.");
+                return false;
+            }
+
+            const regexPrecio = /^(?:\d+)(?:\.\d{1,2})?$/;
+            const precioNum = parseFloat(precio);
+
+            if (isNaN(precioNum) || precioNum <= 0) {
+                alert("El precio del producto debe ser un número positivo con hasta dos decimales.");
+                return false;
+            }
+
+            if (!regexPrecio.test(precio)) {
+                alert("El precio del producto debe ser un número positivo con hasta dos decimales.");
                 return false;
             }
 
