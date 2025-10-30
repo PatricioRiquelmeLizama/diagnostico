@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Producto</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Formulario de Producto</h1>
+        <form id="formProducto" onsubmit="event.preventDefault(); insertarProducto();">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" name="codigo" value="" placeholder="PROD01K">
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" value="" placeholder="Set Comedor">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bodega">Bodega</label>
+                    <select onchange="obtenerValorBodega()" id="bodega" name="bodega">
+                        <option> </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sucursal">Sucursal</label>
+                    <select id="sucursal" name="sucursal">
+                        <option> </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="moneda">Moneda</label>
+                    <select id="moneda" name="moneda">
+                        <option> </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="precio">Precio</label>
+                    <input type="number" id="precio" name="precio" value="" placeholder="1500">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Material del Producto</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="material[]" value="Plástico"> Plástico</label>
+                    <label><input type="checkbox" name="material[]" value="Metal"> Metal</label>
+                    <label><input type="checkbox" name="material[]" value="Madera"> Madera</label>
+                    <label><input type="checkbox" name="material[]" value="Vidrio"> Vidrio</label>
+                    <label><input type="checkbox" name="material[]" value="Textil"> Textil</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" rows="5" placeholder="Elegante set de comedor de madera natural, incluye mesa y sillas. 
+                    Diseño clásico y duradero, ideal para cualquier estilo de decoración. Perfecto para cenas familiares y 
+                    reuniones sociales.">
+                </textarea>
+            </div>
+
+            <div class="form-group center">
+                <button type="submit">Guardar Producto</button>
+            </div>
+
+        </form>
+    </div>
+
+
+     <script>
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("obtener_datos.php")
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById("bodega");
+                    data.forEach(bodega => {
+                        const option = document.createElement("option");
+                        option.value = bodega.ID;
+                        option.textContent = bodega.bodega;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error al cargar las bodegas:", error));
+
+            fetch("obtener_datos.php?accion=obtenerMonedas")
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById("moneda");
+                select.innerHTML = '<option value=""> </option>';
+
+                data.forEach(monedas => {
+                    //console.log(monedas);
+                    const option = document.createElement("option");
+                    option.value = monedas.ID_moneda;
+                    option.textContent = monedas.moneda;
+                    select.appendChild(option);
+                    });
+            })
+            .catch(error => console.error("Error al cargar las monedas:", error));
+        });
+
+       function obtenerValorBodega() {
+            const idBodega = document.getElementById('bodega').value;
+            const selectSucursal = document.getElementById("sucursal");
+            selectSucursal.innerHTML = '<option value=""> </option>';
+            fetch("obtener_datos.php?accion=obtenerSucursalId&idBodega=" + encodeURIComponent(idBodega))
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById("sucursal");
+                   data.forEach(sucursal => {
+                        const option = document.createElement("option");
+                        option.value = sucursal.ID_sucursal;
+                        option.textContent = sucursal.sucursal;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error al obtener datos de la bodega:", error));
+        }
+
+        function insertarProducto() {
+
+            const codigo = document.getElementById("codigo").value.trim();
+            const nombre = document.getElementById("nombre").value.trim();
+            const idBodega = document.getElementById("bodega").value;
+            const idSucursal = document.getElementById("sucursal").value;
+            const idMoneda = document.getElementById("moneda").value;
+            const precio = document.getElementById("precio").value.trim();
+            const descripcion = document.getElementById("descripcion").value.trim();
+
+            const materialesBinarios = [];
+            document.querySelectorAll('input[name="material[]"]').forEach(chk => {
+                materialesBinarios.push(chk.checked ? 1 : 0);
+            });
+
+            if (codigo === "") {
+                alert("El código del producto no puede estar en blanco.");
+                return false;
+            }
+
+            const min = 5, max = 15;
+            if (codigo.length < min || codigo.length > max) {
+                alert(`El código debe tener entre ${min} y ${max} caracteres.`);
+                return;
+            }
+
+            const soloLetrasYNumeros = /^[A-Za-z0-9]+$/;
+            if (!soloLetrasYNumeros.test(codigo)) {
+                alert("El código del producto debe contener solo letras y números.");
+                return false;
+            }
+
+            const tieneLetra = /[A-Za-z]/.test(codigo);
+            const tieneNumero = /[0-9]/.test(codigo);
+            if (!tieneLetra || !tieneNumero) {
+                alert("El código debe contener al menos una letra y un número.");
+                return false;
+            }
+
+            if (nombre === "" || !idBodega || !idSucursal || !idMoneda || !precio) {
+                alert("Por favor, complete todos los campos obligatorios.");
+                return;
+            }
+
+            if (descripcion === "") {
+                alert("La descripción del producto no puede estar en blanco.");
+                return false;
+            }
+
+            fetch("obtener_datos.php?accion=verificarCodigo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ codigo })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    alert("El código del producto ya está registrado.");
+                    return; 
+                } else {
+                    const datos = {
+                        codigo,
+                        nombre,
+                        idBodega,
+                        idSucursal,
+                        idMoneda,
+                        precio,
+                        materialesBinarios,
+                        descripcion
+                    };
+
+                    fetch("obtener_datos.php?accion=insertarProducto", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(datos)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Producto insertado correctamente.");
+                            document.getElementById("formProducto").reset();
+                        } else {
+                            alert("Error al insertar el producto: " + (data.error));
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert("Error al enviar los datos al servidor.");
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Error al verificar el código en el servidor.");
+            });
+        }
+    </script>
+
+</body>
+
+
+</html>

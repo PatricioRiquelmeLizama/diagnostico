@@ -1,0 +1,24 @@
+Versión PHP Version 8.1.10
+Versión mysql-8.0.30-winx64 heidisql
+
+Estimado
+
+se ha creado esta aplicación web en laragon con HTML5, CSS3, JAVASCRIPT, AJAX, PHP, MYSQL
+en ambiente local
+
+en la carpeta sql existe un archivo llamado query_diagnostico.sql donde se encuentra todo para la creación de la base de datos,
+ tablas e insert en el campo Bodega, Sucursal, Moneda
+
+
+en su carpeta local debe copiar esta aplicación, crear la base de datos y en el archivo conexión.php 
+cambiar los parámetros de la base de datos de su local
+
+home.html es el principal
+
+el archivo obtener_datos.php tiene la lógica de consulta, e insertar el producto en la base de datos
+
+el archivo style.css tiene el diseño de la aplicación web de home.html
+
+Creado por Patricio Riquelme Lizama
++56939258600
+riquelme.patricio34@gmail.com
